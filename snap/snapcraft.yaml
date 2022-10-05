@@ -1,0 +1,55 @@
+name: grafana-cs
+adopt-info: grafana
+summary: Grafana snap with content interface
+description: |
+        Grafana snap which provides a content interface slot called "writable".
+        The "writable" slot allows r/w on $SNAP_DATA/conf. Tipical usage is to add/modify a custom grafana.ini file.
+        To connect to the interface, your snap should declare a "writable" slot as described below:
+               plugs:
+                  writable:
+                      interface: content
+                      content: writable-data
+                      target: <your target dir>
+        More info on content interface here: https://snapcraft.io/docs/content-interface
+
+        Use the following command to connect the interface:
+        snap connect <your-snap-name>:writable grafana-cs:writable
+
+confinement: strict
+grade: stable
+base: core22
+
+apps:
+  grafana:
+    command: 'bin/grafana.wrapper'
+    plugs: [network-bind, network]
+    daemon: simple
+
+  grafana-cli:
+    command: 'bin/grafana-cli.wrapper'
+    plugs: [network-bind, network]
+
+parts:
+  grafana:
+    plugin: nil
+    build-snaps:
+       - grafana/rock/edge
+    stage-snaps:
+       - grafana/rock/edge
+    override-build: |
+       VER=$(grafana-cli -v | awk -F'version ' '{print $2}')
+       snapcraftctl set-version $VER
+
+  marcusolsson-json-datasource:
+    plugin: dump
+    source: https://grafana.com/api/plugins/marcusolsson-json-datasource/versions/1.3.1/download
+    source-type: zip
+
+slots:
+  writable: 
+     interface: content
+     content: writable-data
+     write:
+       - $SNAP_DATA/conf
+
+

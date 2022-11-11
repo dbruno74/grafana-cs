@@ -19,6 +19,12 @@ confinement: strict
 grade: stable
 base: core22
 
+architectures:
+  - build-on: amd64
+    build-for: amd64
+  - build-on: [amd64, arm64]
+    build-for: arm64
+
 apps:
   grafana:
     command: 'bin/grafana.wrapper'
@@ -34,11 +40,17 @@ parts:
     plugin: nil
     build-snaps:
        - grafana/rock/edge
-    stage-snaps:
-       - grafana/rock/edge
+    override-pull: |
+       UBUNTU_STORE_ARCH=$CRAFT_TARGET_ARCH snap download grafana --channel=rock/edge
+       find *.snap -exec unsquashfs -f -d $CRAFT_PART_INSTALL {} \;
     override-build: |
-       VER=$(grafana-cli -v | awk -F'version ' '{print $2}')
-       snapcraftctl set-version $VER
+       # cleaning PATH from INSTALL and STAGE directories
+       export PATH=$(echo $PATH | sed -e 's,:*'$CRAFT_PART_INSTALL'[^:]*:*,,g')
+       export PATH=$(echo $PATH | sed -e 's,:*'$CRAFT_STAGE'[^:]*:*,,g')
+       echo $PATH
+
+       VER=$(grafana.grafana-cli -v | awk -F'version ' '{print $2}')
+       craftctl set version=$VER
 
   marcusolsson-json-datasource:
     plugin: dump

@@ -1,4 +1,4 @@
-name: grafana-cs
+name: iotdevice-grafana-cs
 adopt-info: grafana
 summary: Grafana snap with content interface
 description: |

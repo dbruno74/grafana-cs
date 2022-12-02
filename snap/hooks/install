@@ -1,5 +1,6 @@
 #!/bin/sh
 
 mkdir -p ${SNAP_DATA}/conf
+cp -r ${SNAP}/config ${SNAP_DATA}/conf
 mkdir -p ${SNAP_COMMON}/data/plugins
 cp -r ${SNAP}/marcusolsson-json-datasource ${SNAP_COMMON}/data/plugins

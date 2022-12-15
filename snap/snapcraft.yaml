@@ -59,7 +59,6 @@ parts:
 
   config:
     source: .
-    after: [prepare-env.host, node, node-red]
     plugin: nil
     override-build: |
       # cleaning PATH from INSTALL and STAGE directories
